@@ -37,7 +37,7 @@
                                 targetYear++;
                             }
                             var finalDate = moment.tz(targetYear + '-' + countdownTo + ' 00:00', 'Asia/Tokyo');
-                            $('#' + $(this).attr('id') + ' .birthday').html('<i class="fa fa-birthday-cake" aria-hidden="true"></i>&nbsp;' + finalDate.format('MMMM Do'));
+                            $('#' + $(this).attr('id') + ' .birthday').html('<i class="fa fa-birthday-cake" aria-hidden="true"></i>&nbsp;' + moment($(this).data('countdown')).format('MMMM Do YYYY'));
                             var $birthdayElem = $(this).find('.birthday-container');
                             $birthdayElem.countdown(finalDate.toDate(), changeCountdown);
                             if (checkIfCurrentDateIsABirthday(countdownTo, currentYear)) {
