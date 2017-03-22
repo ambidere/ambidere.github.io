@@ -1,10 +1,117 @@
 <html>
 <head>
 	<link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="stylesheet" type="text/css" href="assets/css/index.css">
 	<title>ambidere</title>
 </head>
 <body>
-	<header></header>
-	<footer></footer>
+    <div id="container">
+    	<header></header>
+    	<div id="members-container"></div>
+    	<footer></footer>
+    <div>
+	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.11/moment-timezone-with-data.min.js"></script>
+    <script src="assets/js/query.countdown.min.js"></script>
+    
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$.ajax({
+                method: 'GET', 
+                dataType: 'json',
+				url: "data/birthday.json",
+				success : function(data) {
+                    console.log("asdasdas")
+					var birthday = Mustache.to_html($('#birthday_template').html(), data);
+					$('#members-container').html(birthday);
+
+                    $('[data-countdown]').each(function() {
+                            var currentYear = new Date().getFullYear();
+                            var targetYear = currentYear;
+                            var countdownTo = moment($(this).data('countdown')).format("MM-DD");
+
+                            var isCurrent = checkCurrentDate(countdownTo, targetYear);
+                            if (checkCurrentDate(countdownTo, targetYear)) {
+                                targetYear++;
+                            }
+                            var finalDate = moment.tz(targetYear + '-' + countdownTo + ' 00:00', 'Asia/Tokyo');
+                            $('#' + $(this).attr('id') + ' .birthday').html('<i class="fa fa-birthday-cake" aria-hidden="true"></i>&nbsp;' + finalDate.format('MMMM Do'));
+                            var $birthdayElem = $(this).find('.birthday-container');
+                            $birthdayElem.countdown(finalDate.toDate(), changeCountdown);
+                            if (checkIfCurrentDateIsABirthday(countdownTo, currentYear)) {
+                                $(this).find('.details').hide(100);
+                                $(this).append('<div class="balloon">お</div><div class="balloon">誕</div><div class="balloon">生</div><div class="balloon">日</div><div class="balloon">お</div><div class="balloon">め</div><div class="balloon">で</div><div class="balloon">と</div><div class="balloon">う</div><div class="balloon">!</div>');
+                                $(this).append('<div class="bday-greeting"><a href="https://twitter.com/hashtag/諏訪ななか2016?src=hash">#諏訪ななか生誕祭2016</a></div>');
+                            }
+                        });
+				}
+			})
+		});
+
+        function checkIfCurrentDateIsABirthday(date, currentYear) {
+            var now = new Date();
+            var countdownToDate = moment.tz(currentYear + '-' + date, 'Asia/Tokyo');
+            return countdownToDate.isSame(now, 'day');
+        }
+
+        function checkCurrentDate(date, currentYear) {
+            var now = moment.tz(new Date(), 'Japan');
+            var countdownToDate = moment.tz(currentYear + '-' + date, 'Asia/Tokyo');
+            return countdownToDate.isBefore(now, 'day');
+        }
+
+        function changeCountdown(event) {
+            var $this = $(this);
+            modifyUnits($this, 'week', '%!w', event, event.offset.weeks);
+            modifyUnits($this, 'day', '%!d', event, event.offset.days);
+            modifyUnits($this, 'hour', '%!H', event, event.offset.hours);
+            modifyUnits($this, 'minute', '%!m', event, event.offset.minutes);
+            modifyUnits($this, 'second', '%!S', event, event.offset.seconds);
+        }
+
+        function modifyUnits(elem, unit, unitshort, event, num) {
+            elem.find('.' + unit + ' .number').html(num);
+            elem.find('.' + unit + ' .unit').html(event.strftime(unit + unitshort));
+        }
+	</script>
+    <script id="birthday_template" type="text/x-mustache">
+        {{#aqours.members}}
+            <div id="{{id}}" class="member" data-countdown="{{birthday}}" style="background-color: {{background}};">
+                <div class="pics-container member-column">
+                    <div class="pic" style="background-image: url('assets/images/{{id}}.jpg');"></div>
+                    <div class="arc"></div>
+                    <div class="chibi" style="background-image: url('assets/chibis/{{id}}_chibi.png')"></div>
+                </div>
+                <div class="details member-column">
+                    <div class="name-container"><span class="name">{{english}} | {{kanji}}</span>
+                        <br><span class="birthday"><i class="fa fa-birthday-cake" aria-hidden="true"></i>&nbsp;January 01</span><span class="twitter"><a href="https://twitter.com/{{twitter}}"><i class="fa fa-twitter" aria-hidden="true"></i>&nbsp;@{{twitter}}</a></span></div>
+                    <div class="birthday-container">
+                        <div class="week unit-container">
+                            <div class="number">0</div>
+                            <div class="unit">weeks</div>
+                        </div>
+                        <div class="day unit-container">
+                            <div class="number">0</div>
+                            <div class="unit">days</div>
+                        </div>
+                        <div class="hour unit-container">
+                            <div class="number">0</div>
+                            <div class="unit">hours</div>
+                        </div>
+                        <div class="minute unit-container">
+                            <div class="number">0</div>
+                            <div class="unit">minutes</div>
+                        </div>
+                        <div class="second unit-container">
+                            <div class="number">0</div>
+                            <div class="unit">seconds</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{/aqours.members}}
+    </script>
 </body>
 </html>
